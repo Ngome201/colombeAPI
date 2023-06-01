@@ -1,4 +1,3 @@
-import { Connection } from 'typeorm'
 import {AppDataSource} from './app'
 import {Request,Response,NextFunction} from "express"
 const express = require('express')

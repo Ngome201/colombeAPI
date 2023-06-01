@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { createConnection,Connection, DataSource } from 'typeorm';
+import { DataSource } from 'typeorm';
 import{Accessory, AccessoryStock, AccessorySupplier, Bill, BillItem, Book, BookStock, BookSupplier, Command, ExerciseBook,  ExerciseBookStock, ExerciseBookSupplier, User} from './models'
 
  export const AppDataSource = new DataSource({
