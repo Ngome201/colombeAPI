@@ -6,7 +6,7 @@ const router = express.Router()
 router.get('/bill/addBill',addBill)
 router.get('/bill/addBillItem/:billId/:itemId/:itemType',addBillItem)
 router.get('/bill/decBillItem/:billId/:itemId/:itemType',decBillItem)
-router.get('/bill/validateBill/:billId/:cni',validateBill)
+router.get('/bill/validateBill/:billId/:matricule',validateBill)
 router.get('/bill/detailsBill/:billId',detailsBill)
 router.get('/bill/cancelBill/:billId',cancelBill)
 

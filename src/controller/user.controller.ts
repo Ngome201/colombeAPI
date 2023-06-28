@@ -5,10 +5,8 @@ import * as bcrypt from "bcryptjs";
 
 const userRepo = AppDataSource.getRepository(User)
 const jwt = require('jsonwebtoken')
-const session = require('express-session')
 
 export const saveUser = async (req:Request,res : Response) => {
-    res.header('Access-Control-Allow-Origin','*');
     const {username, lastname, tel,  matricule, role,address,cni} = req.body
     const user: Partial <User>= new User(username,lastname,tel,address,matricule,role,cni)
     // const user: Partial <User>= new User(username,lastname,tel,password,address,matricule,role)
@@ -20,31 +18,22 @@ export const saveUser = async (req:Request,res : Response) => {
 export const signIn = async (req:Request,res : Response, next : NextFunction) => {
     res.header('Access-Control-Allow-Origin','*');
     const {matricule, cni} = req.body
-    // const {matricule, password} = req.body
     try {
         
         const user= await userRepo.findOneOrFail({where :{matricule,cni}});
-        
-        // const isEqual =  user.checkIfUnencryptedPasswordIsValid(password)
-        // if(!isEqual){
-        //     const error  = new Error('wrong password')
-        //     throw error;
-
-            
-        // }
+       
         const token = jwt.sign(
             {
                 matricule : user.matricule,
-                userId : user.id
+                cni : user.cni
             },
             'secretfortoken',
-            {expiresIn : '1h'}
+            {expiresIn : '24h'}
         )
         res.status(200).json({
             token : token,
             role : user.role, 
             matricule : user.matricule,
-            cni : user.cni,
             username : user.username
         })
     } catch (error) {

@@ -8,7 +8,7 @@ const stock = require('./routers/stock.routes')
 const bill = require('./routers/bill.routes')
 const command = require('./routers/command.routes')
 const bodyParser = require ('body-parser')
-const cors = require ('cors')
+const cors = require ('cors') 
 //const auth = require('./routers/auth.routes')
 const session = require('express-session')
 

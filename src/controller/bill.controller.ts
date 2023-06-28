@@ -157,8 +157,8 @@ export const decBillItem = async ( req :Request,res:Response) => {
 
 export const validateBill = async (req:Request,res:Response) => {
     let billId = req.params.billId;
-    let cni = req.params.cni;
-    const user : User = await userRepository.findOne({where:{cni:cni}});
+    let matricule = req.params.matricule;
+    const user : User = await userRepository.findOne({where:{matricule:matricule}});
     
     const bill : Bill = await billRepository.findOne({where:{id:billId}}) //findOne is a findById finder
     const billItems = await billItemRepository.find({where : {billId:billId}});
@@ -200,7 +200,7 @@ export const validateBill = async (req:Request,res:Response) => {
 
 }
 
-export const billList =async (req:Request,res:Response) => {
+export const billList = async (req:Request,res:Response) => {
     try {
         const bill = await billRepository.find(); 
         res.status(200).send(bill);
@@ -209,6 +209,7 @@ export const billList =async (req:Request,res:Response) => {
         res.status(500).send("no bill available")
     }
 }
+
 
 export const detailsBill =async (req:Request,res:Response) => {
     let billId = req.params.billId
