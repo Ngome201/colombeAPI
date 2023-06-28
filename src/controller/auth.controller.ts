@@ -6,9 +6,9 @@ module.exports=(req : Request, res : Response, next : NextFunction)=>{
     if(!authHeader){
         res.status(401).send('not authenticated')
     }
-    console.log(authHeader)
+    // console.log(authHeader)
     const token = authHeader.split(' ')[1];
-    console.log(token)
+    // console.log(token)
     let decodedToken;
     try {
         decodedToken = jwt.verify(token,'secretfortoken')

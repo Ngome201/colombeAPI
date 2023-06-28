@@ -50,8 +50,10 @@ export const commandListByUser = async (req:Request,res:Response) => {
     let mat = req.params.matricule;
     let user : User = await userRepository.findOne({where:{matricule : mat}});
     const username : any = user.toString();
-    try {
+    // console.log(user.toString())
+    try { 
         const commands = await commandRepository.find({where:{username : username}}); 
+        // console.log(commands)
         res.status(200).send(commands);
         
     } catch (error) {

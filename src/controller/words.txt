@@ -1,3 +1,0 @@
-192.168.43.161
-"ts-node": "ts-node",
-    "start": "nodemon index.ts"

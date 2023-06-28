@@ -9,7 +9,7 @@ router.get('/command/detailsCommand/:commandId',detailsCommand)
 router.get('/command/myCommands/:matricule',commandListByUser)
 
 // router.get('/commandList',commandList)
-// router.get('/sendCommand/:commandId',sendCommand)
+// router.get('/sendCommand/:commandId',sendCommand) 
 // router.get('/detailsCommand/:commandId',detailsCommand)
 
 
