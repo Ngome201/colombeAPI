@@ -2,7 +2,6 @@ import {Entity,PrimaryGeneratedColumn,Column,ManyToOne, OneToMany} from 'typeorm
 import { BillItem } from './BillItem';
 import { Item } from './Item';
 import { Stock } from './Stock';
-import { ExerciseBookStock } from './ExerciseBookStock';
 
 @Entity()
 export class ExerciseBook extends Item{
@@ -40,9 +39,9 @@ export class ExerciseBook extends Item{
     @OneToMany('BillItem',(billItem:BillItem)=>{billItem.exerciseBook},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
     billItems : Array<BillItem>
 
-    @OneToMany('ExerciseBookStock',(stock:ExerciseBookStock)=>{stock.exerciseBook},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
-    stocks : Array<ExerciseBookStock>
+    @OneToMany('Stock',(stock:Stock)=>{stock.exerciseBook},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
+    stocks : Array<Stock>
 
-    toString = (()=>{return this.designation+" "+this.pages+"p "+this.type+" "+this.shape+" "+this.mark})
-// example of returned : cahier 144p TP
+    toString = (()=>{return this.designation+" "+this.pages+" "+this.type+" "+this.shape+" "+this.mark})
+// example of returned : cahier 144 TP
 }

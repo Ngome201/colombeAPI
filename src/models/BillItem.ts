@@ -23,7 +23,7 @@ export class BillItem extends SharedProp{
     @Column()
     unitPrice : number;
 
-    @Column({default : "UNACHIEVED"})
+    @Column()
     totalPrice : number;
     
     @Column()
@@ -56,6 +56,6 @@ export class BillItem extends SharedProp{
     @ManyToOne(()=>ExerciseBook,(exerciseBook : ExerciseBook)=>exerciseBook.billItems)
     @JoinColumn({name:'exerciseBookId'})
     exerciseBook : ExerciseBook;
-    
+                                                                                                                                
 }
 //connection.manager.save(user)

@@ -7,62 +7,69 @@ const exerciseBookRepo = AppDataSource.getRepository(ExerciseBook)
 const bookRepo = AppDataSource.getRepository(Book)
 const accessoryRepo = AppDataSource.getRepository(Accessory)
 
-export const saveItem = async (req:Request,res : Response) => {
-    const {designation, quantity, price,
-            type,shape, pages,
-            author,publisher,level,section,
-            mark, category} = req.body
+export const saveExerciseBook = async (req:Request,res : Response) => {
+    const {designation, price, type, shape, pages, mark} = req.body
     try {
-        switch(category){
-            case "exerciseBook":
-                const exerciseBook : ExerciseBook = new ExerciseBook(designation,
-                                                                                quantity,
-                                                                                price,
-                                                                                type,
-                                                                                shape,
-                                                                                pages,
-                                                                                mark)
-                insertExerciseBook(exerciseBook);
-                res.status(201).send("exercise book saved successfully")
-                break;
-            case "book":
-                const book : Book= new Book(designation,
-                                                        quantity,
-                                                        price,
-                                                        author,
-                                                        publisher,
-                                                        level,
-                                                        section)
-
-                insertBook(book);
-                res.status(201).send("Book saved successfully")
-                break;
-            case "accessory":
-                const accessory : Accessory = new Accessory(designation,
-                                                        quantity,
-                                                        price,
-                                                        mark)
-                                                        
-                insertAccessory(accessory);
-                res.status(201).send("Accessory saved successfully")
-        
-        }
+        const exerciseBook : ExerciseBook = new ExerciseBook(designation,
+                                                            0,
+                                                            price,
+                                                            type,
+                                                            shape,
+                                                            pages,
+                                                            mark)
+        insertExerciseBook(exerciseBook);
+        res.status(201).send({msg :"exercise book saved successfully"})
+    
     } catch (error) {
         throw error
     }        
     
 } 
+
+export const saveBook = async (req:Request,res : Response) => {
+    const {designation, price,author,publisher,level,section} = req.body
+    try {
+        const book : Book= new Book( designation,
+                                    0,
+                                    price,
+                                    author,
+                                    publisher,
+                                    level,
+                                    section)
+    
+        insertBook(book);
+        res.status(201).send({msg : "Book saved successfully"})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const saveAccessory = async (req:Request,res : Response) => {
+    const {designation, price, mark} = req.body
+    try {
+        const accessory : Accessory = new Accessory(designation,
+                                                    0,
+                                                    price,
+                                                    mark)
+        
+        insertAccessory(accessory);
+        res.status(201).send({msg : "Accessory saved successfully"})
+    } catch (error) {
+        console.log(error)
+        
+    }
+}   
 export const getItems = async (req:Request,res : Response) => {
     const {cat} = req.params
     let list
     switch(cat){
-        case "1":
+        case "EXERCISE_BOOK":
             list = await exerciseBookRepo.find()
             break;
-        case "2":
+        case "BOOK":
             list = await bookRepo.find()
             break;
-        case "3":
+        case "ACCESSORY":
             list = await accessoryRepo.find()
             break;     
     }
@@ -71,22 +78,35 @@ export const getItems = async (req:Request,res : Response) => {
 
 }
 export const editExerciseBook = async (req:Request,res : Response) => {
-    const {id} = req.params;
-    const exerciseBook = findExerciseBook(id);
-    res.status(200).send(exerciseBook);
-    
+    const {id} = req.params;    
+    try {
+        const exerciseBook = await exerciseBookRepo.findOneOrFail({where : {id}}) // findOneOrFail is a findByAttribute finder
+        res.status(200).send(exerciseBook);
+
+    } catch (error) {
+        res.status(500).send({msg : "unable to find this item"});
+    }  
 }
 export const editBook =async (req:Request,res : Response) => {
-    let {id} = req.params
-    const book = findBook(id);
-    res.status(200).send(book);
+    let {id} = req.params   
+    try {
+        const book = await bookRepo.findOneOrFail({where : {id}}) // findOneOrFail is a findByAttribute finder
+        res.status(200).send(book);
+
+    } catch (error) {
+        res.status(500).send({msg : "unable to find this item"});
+    }  
 }
 
 export const editAccessory =async (req:Request,res : Response) => {
     let {id} = req.params
-    const accessory = findAccessory(id);
-    res.status(200).send(accessory);
+    try {
+        const accessory = await accessoryRepo.findOneOrFail({where : {id}}) // findOneOrFail is a findByAttribute finder
+        res.status(200).send(accessory);
 
+    } catch (error) {
+        res.status(500).send({msg : "unable to find this item"});
+    }   
 }
 
 export const updateExerciseBook =async (req:Request,res : Response) => {
@@ -103,7 +123,6 @@ export const updateExerciseBook =async (req:Request,res : Response) => {
     insertExerciseBook(exerciseBook);
     res.status(201).send("exercise book saved successfully")
 
-    
 }
 
 export const updateBook =async (req:Request,res : Response) => {

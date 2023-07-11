@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import{Accessory, AccessoryStock, AccessorySupplier, Bill, BillItem, Book, BookStock, BookSupplier, Command, ExerciseBook,  ExerciseBookStock, ExerciseBookSupplier, User} from './models'
+import{Accessory, Supplier,Stock, Bill, BillItem, Book, Command, ExerciseBook,  User} from './models'
 
  export const AppDataSource = new DataSource({
     type : "sqlite",
@@ -9,15 +9,11 @@ import{Accessory, AccessoryStock, AccessorySupplier, Bill, BillItem, Book, BookS
                 Bill,
                 BillItem,
                 Book,
-                BookStock,
-                BookSupplier,
+                Supplier,
                 ExerciseBook,
-                ExerciseBookStock,
-                ExerciseBookSupplier,
                 Accessory,
-                AccessoryStock,
-                AccessorySupplier,
-                Command
+                Command,
+                Stock
                 ],
     synchronize : true
 })

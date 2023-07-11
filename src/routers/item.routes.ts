@@ -1,15 +1,18 @@
-import { saveItem,getItems, editExerciseBook, editAccessory, editBook, updateExerciseBook, updateBook, updateAccessory } from "../controller/item.controller"
+import {getItems, editExerciseBook, editAccessory, editBook, updateExerciseBook, updateBook, updateAccessory, saveExerciseBook, saveBook, saveAccessory } from "../controller/item.controller"
 const express = require ("express")
 const router = express.Router()
+const auth = require('../controller/auth.controller')
 
-router.post('/item/saveItem',saveItem)
-router.get('/item/listItems/:cat',getItems)
-router.get('/item/editExerciseBook/:id',editExerciseBook)
-router.get('/item/editBook/:id',editBook)
-router.get('/item/editAccessory/:id',editAccessory)
-router.put('/item/updateExerciseBook',updateExerciseBook)
-router.put('/item/updateBook',updateBook)
-router.put('/item/updateAccessory',updateAccessory)
+router.post('/item/saveExerciseBook',auth,saveExerciseBook)
+router.post('/item/saveBook',auth,saveBook)
+router.post('/item/saveAccessory',auth,saveAccessory)
+router.get('/item/listItems/:cat',auth,getItems)
+router.get('/item/editExerciseBook/:id',auth,editExerciseBook)
+router.get('/item/editBook/:id',auth,editBook)
+router.get('/item/editAccessory/:id',auth,editAccessory)
+router.put('/item/updateExerciseBook',auth,updateExerciseBook)
+router.put('/item/updateBook',auth,updateBook)
+router.put('/item/updateAccessory',auth,updateAccessory)
 
 // router.post('/saveItem',saveItem)
 // router.get('/listItems/:cat',getItems)

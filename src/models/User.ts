@@ -10,8 +10,8 @@ export class User extends SharedProp{
         username : string,
         lastname : string,
         tel : string,
-        address : string,
-        // password : string, 
+        locationAddress : string,
+        shippingAddress : string, 
         matricule:string,
         role : string,
         cni : String)
@@ -20,8 +20,8 @@ export class User extends SharedProp{
         this.username = username 
         this.lastname = lastname 
         this.tel = tel 
-        this.address = address 
-        // this.password = password 
+        this.locationAddress = locationAddress 
+        this.shippingAddress = shippingAddress 
         this.matricule = matricule
         this.role = role, 
         this.cni =cni
@@ -39,8 +39,11 @@ export class User extends SharedProp{
     @Column()
     tel : string;
     
-    @Column()
-    address : string;
+    @Column({nullable:true})
+    locationAddress : string;
+
+    @Column({nullable:true})
+    shippingAddress : string;
 
     @Column()
     cni : String
@@ -48,13 +51,13 @@ export class User extends SharedProp{
     @Column({ default : "00000"})
     matricule : string;
 
-    @Column({enum : ['admin','camrail','staff'], default: 'camrail'})
+    @Column({default: 'CAMRAIL'})
     role : string;
 
     @OneToMany('Command',(command:Command)=>{command.user},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
     commands : Array<Command>
 
-    toString = (()=>{return this.username+" "+this.matricule+" "+this.address})
+    toString = (()=>{return this.username+" "+this.matricule+" "+this.shippingAddress})
     
 } 
 // hashPassword() {

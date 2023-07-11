@@ -1,14 +1,17 @@
-import {addBill, addBillItem, decBillItem, validateBill,detailsBill, cancelBill} from '../controller/bill.controller'
+import {addBill, addBillItem, decBillItem, validateBill,detailsBill, cancelBill, addQuantity, deleteBillItem} from '../controller/bill.controller'
 
 const express = require ("express")
 const router = express.Router()
+const auth = require('../controller/auth.controller')
 
-router.get('/bill/addBill',addBill)
-router.get('/bill/addBillItem/:billId/:itemId/:itemType',addBillItem)
-router.get('/bill/decBillItem/:billId/:itemId/:itemType',decBillItem)
-router.get('/bill/validateBill/:billId/:matricule',validateBill)
-router.get('/bill/detailsBill/:billId',detailsBill)
-router.get('/bill/cancelBill/:billId',cancelBill)
+router.post('/bill/addBill',auth,addBill)
+router.put('/bill/addBillItem',auth,addBillItem)
+router.put('/bill/decBillItem',auth,decBillItem)
+router.put('/bill/deleteBillItem',auth,deleteBillItem)
+router.put('/bill/addQuantity',auth,addQuantity)
+router.put('/bill/validateBill',auth,validateBill)
+router.get('/bill/detailsBill/:billId',auth,detailsBill)
+router.put('/bill/cancelBill/:billId',auth,cancelBill)
 
 
 // router.get('/addBill',addBill)

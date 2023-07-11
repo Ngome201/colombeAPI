@@ -10,154 +10,138 @@ const bookRepo = AppDataSource.getRepository(Book)
 const accessoryRepo = AppDataSource.getRepository(Accessory)
 const commandRepo = AppDataSource.getRepository(Command)
 
+const EXERCISE_BOOK = "EXERCISE_BOOK"
+const ACCESSORY = "ACCESSORY"
+const BOOK = "BOOK"
+
 export const addBill =async (req:Request,res:Response) => {
     const bill : Partial <Bill> = new Bill(0,0);
     const createdBill = await billRepository.save(bill);
     res.status(201).send(createdBill);
 }
 
-export const addBillItem =async (req:Request,res:Response) => {
-    let billId = req.params.billId;
-    let itemId = req.params.itemId;
-    let itemType = req.params.itemType;
-
-    const bill : Bill= await billRepository.findOne({where:{id:billId}}) //findOne is a findById finder
+export const addQuantity =async (req:Request, res : Response) => {
     
+    let {billId,itemId, itemType, quantity} = req.body
+    const bill : Bill= await billRepository.findOne({where:{id:billId}}) //findOne is a findById finder
+   
     let item : any;
     let billItem : BillItem;
-    switch(itemType){
-        case 'exerciseBook':
-            item = await exerciseBookRepo.findOne({where:{id:itemId}})
-            billItem = await billItemRepository.findOne({where:{exerciseBookId:itemId,billId:billId}});
-
-            break;
-
-        case 'book':
- 
-            item= await bookRepo.findOne({where:{id:itemId}})
-            billItem = await billItemRepository.findOne({where:{bookId:itemId,billId:billId}});
-            
-            break;
-
-        case 'accessory':
-            item = await accessoryRepo.findOne({where:{id:itemId}})
-            billItem = await billItemRepository.findOne({where:{accessoryId:itemId,billId:billId}});
-
-    }
-
-
-    if (billItem==null) {
-        switch(itemType){
-            case 'exerciseBook':
-                billItem = new BillItem(1,item.price,item.price,item.toString());
-                billItem.exerciseBook = item;
-                break;
-    
-            case 'book':
-                billItem = new BillItem(1,item.price,item.price,item.designation);
-                billItem.book = item;
-                break;
-    
-            case 'accessory':
-                billItem = new BillItem(1,item.price,item.price,item.toString());
-                billItem.accessory = item;
-        }
+    if(quantity == null||0||undefined||NaN){
+        res.status(400).send("insert a valid quantity")
     }
     else{
         switch(itemType){
-            case 'exerciseBook':
-                billItem.quantity +=1;
-                billItem.totalPrice += item.price;
+            case EXERCISE_BOOK:
+                item = await exerciseBookRepo.findOne({where:{id:itemId}})
+                billItem = await billItemRepository.findOne({where:{exerciseBookId:itemId,billId:billId}});
                 break;
-    
-            case 'book':
+            case BOOK:
+                item= await bookRepo.findOne({where:{id:itemId}})
+                billItem = await billItemRepository.findOne({where:{bookId:itemId,billId:billId}});
                 
-                billItem.quantity +=1;
-                billItem.totalPrice += item.price;
                 break;
-    
-            case 'accessory':
-                    
-                billItem.quantity +=1;
-                billItem.totalPrice += item.price;
-        }
-    }
-    billItem.bill=bill;
-    billItemRepository.save(billItem);
-    billRepository.save(bill);
+            case ACCESSORY:
+                item = await accessoryRepo.findOne({where:{id:itemId}})
+                billItem = await billItemRepository.findOne({where:{accessoryId:itemId,billId:billId}});
 
-    res.status(200).send(billId);
+        }
+        if (billItem==null) {
+            switch(itemType){
+                case EXERCISE_BOOK:
+                    billItem = new BillItem(quantity,item.price,item.price*quantity,item.toString());
+                    billItem.exerciseBook = item;
+                    break;
+        
+                case BOOK:
+                    billItem = new BillItem(quantity,item.price,item.price*quantity,item.designation);
+                    billItem.book = item;
+                    break;
+        
+                case ACCESSORY:
+                    billItem = new BillItem(quantity,item.price,item.price*quantity,item.toString());
+                    billItem.accessory = item;
+            }
+        }else{
+            switch(itemType){
+                case EXERCISE_BOOK:
+                    billItem.quantity = quantity;
+                    billItem.totalPrice = item.price*quantity;
+                    break;
+        
+                case BOOK:
+                    
+                    billItem.quantity = quantity;
+                    billItem.totalPrice = item.price*quantity;
+                    break;
+        
+                case ACCESSORY:
+                        
+                    billItem.quantity = quantity;
+                    billItem.totalPrice = item.price*quantity;
+            }
+        }
+        billItem.bill=bill;
+        billItemRepository.save(billItem);
+        billRepository.save(bill);
+
+        res.status(200).send(billId);
+    }
+}
+
+export const addBillItem =async (req:Request,res:Response) => {
+    let {billId,billItemId} = req.body
+    
+    let billItem : BillItem;
+
+    billItem = await billItemRepository.findOne({where:{id:billItemId}});
+    billItem.quantity = billItem.quantity + 1;
+    billItem.totalPrice = billItem.totalPrice + billItem.unitPrice;
+    billItemRepository.save(billItem);
+    // billRepository.save(bill);
+    res.status(200).send(billId); 
 }
 
 export const decBillItem = async ( req :Request,res:Response) => {
-    let billId = req.params.billId;
-    let itemId = req.params.itemId;
-    let itemType = req.params.itemType;
-
-    const bill : Bill= await billRepository.findOne({where:{id:billId}}) //findOne is a findById finder
-     
-    let item : any;
+   
+    let {billId,billItemId} = req.body
+    // const bill : Bill= await billRepository.findOne({where:{id:billId}}) //findOne is a findById finder
     let billItem : BillItem;
-    switch(itemType){
-        case 'exerciseBook':
-            item = await exerciseBookRepo.findOne({where:{id:itemId}})
-            billItem = await billItemRepository.findOne({where:{exerciseBookId:itemId,billId:billId}});
 
-            break;
-
-        case 'book':
- 
-            item= await bookRepo.findOne({where:{id:itemId}})
-            billItem = await billItemRepository.findOne({where:{bookId:itemId,billId:billId}});
-            
-            break;
-
-        case 'accessory':
-            item = await accessoryRepo.findOne({where:{id:itemId}})
-            billItem = await billItemRepository.findOne({where:{accessoryId:itemId,billId:billId}});
-
-    }
-  
-    if (billItem==null) {
-        res.status(500).send("no entry to subtract")
-    }
-    else{
-        switch(itemType){
-            case 'exerciseBook':
-                billItem.quantity -=1;
-                billItem.totalPrice -= item.price;
-                break;
-    
-            case 'book':
-                
-                billItem.quantity -=1;
-                billItem.totalPrice -= item.price;
-                break;
-    
-            case 'accessory':
-                    
-                billItem.quantity -=1;
-                billItem.totalPrice -= item.price;
-        }
-    }
+    billItem = await billItemRepository.findOne({where:{id:billItemId}});
+    billItem.quantity -=1;
+    billItem.totalPrice -= billItem.unitPrice;
 
     if(billItem.quantity==0){
         await billItemRepository.delete({id:billItem.id})
     }
     else{
-            
-        billItem.bill=bill;
+        // billItem.bill=bill;
         billItemRepository.save(billItem);
-        billRepository.save(bill);
+        // billRepository.save(bill);
     }
+    res.status(200).send(billId);
+}
 
+export const deleteBillItem = async ( req :Request,res:Response) => {
+    
+    let {billId,billItemId} = req.body
+    // const bill : Bill= await billRepository.findOne({where:{id:billId}}) //findOne is a findById finder
+    // let billItem : BillItem;
+
+    await billItemRepository.delete({id:billItemId})
+   
+    // billItem.bill=bill;
+    // billRepository.save(bill);
+
+    // billItemRepository.save(billItem);
     res.status(200).send(billId);
 
 }
-
 export const validateBill = async (req:Request,res:Response) => {
-    let billId = req.params.billId;
-    let matricule = req.params.matricule;
+    // let billId = req.params.billId;
+    // let matricule = req.params.matricule;
+    let {matricule, billId} = req.body
     const user : User = await userRepository.findOne({where:{matricule:matricule}});
     
     const bill : Bill = await billRepository.findOne({where:{id:billId}}) //findOne is a findById finder
@@ -195,9 +179,6 @@ export const validateBill = async (req:Request,res:Response) => {
         }    
         
     }
-
-    
-
 }
 
 export const billList = async (req:Request,res:Response) => {

@@ -3,11 +3,13 @@ import { SharedProp } from './SharedProp.helper';
 
 export class Item extends SharedProp{
     constructor(
+        // uuid:string,
         designation : string,
         quantity : number,
         price : number)
         {
         super();
+        // this.uuid = uuid
         this.designation = designation 
         this.quantity = quantity 
         this.price = price
@@ -16,10 +18,13 @@ export class Item extends SharedProp{
     @PrimaryGeneratedColumn()
     id : number;
 
+    // @Column()
+    // uuid : string;
+
     @Column()
     designation : string;
 
-    @Column()
+    @Column({unsigned : true})
     quantity: number;
 
     @Column()

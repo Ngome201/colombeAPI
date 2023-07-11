@@ -7,12 +7,24 @@ const userRepo = AppDataSource.getRepository(User)
 const jwt = require('jsonwebtoken')
 
 export const saveUser = async (req:Request,res : Response) => {
-    const {username, lastname, tel,  matricule, role,address,cni} = req.body
-    const user: Partial <User>= new User(username,lastname,tel,address,matricule,role,cni)
-    // const user: Partial <User>= new User(username,lastname,tel,password,address,matricule,role)
-    // user.hashPassword();
-    await userRepo.save(user)
-    res.status(201).json({message : 'user registered'})
+    const {username, lastname, tel,  matricule, role, locationAddress, cni, shippingAddress} = req.body
+    try {
+        
+        let userMatricule = await userRepo.findOne({where : {matricule : matricule}});
+        let userCni = await userRepo.findOne({where : {cni : cni}});
+        if (userCni!=null && userMatricule!=null) {
+        res.status(400).json({msg : 'user already exists'})
+            
+        }
+        
+        const user: Partial <User>= new User(username,lastname,tel,locationAddress,shippingAddress,matricule,role,cni)
+
+        await userRepo.save(user)
+        
+        res.status(201).json({msg : 'user registered'})
+    } catch (error) {
+        
+    }
 }
 
 export const signIn = async (req:Request,res : Response, next : NextFunction) => {
@@ -34,13 +46,15 @@ export const signIn = async (req:Request,res : Response, next : NextFunction) =>
             token : token,
             role : user.role, 
             matricule : user.matricule,
-            username : user.username
+            username : user.username,
+            msg : "registered"
         })
     } catch (error) {
-        if(!error.satusCode){
-            error.satusCode = 500;
+        if(!error.statusCode){
+            error.statusCode = 500;
         }
-        next(error)
+        res.status(401).json({msg:"registration failed"})
+        // next(error)
     }
 }
 
@@ -58,28 +72,30 @@ export const deleteUser =  async (req:Request,res : Response) => {
     const{id} = req.params
     try {
         await userRepo.findOneOrFail({where:{id}})
-        await userRepo.delete(id).then(res.status(200).send('user deleted'))
+        await userRepo.delete(id).then(res.status(200).send({msg:'user deleted'}))
     
     } catch (error) {
-        res.status(400).send("invalid id, user not found")
+        res.status(400).send({msg:"invalid id, user not found"})
     }
 }
 
 export const updateUser = async (req:Request,res : Response) => {
-    const { id,username, lastname, tel, matricule,password,address,role} = req.body
+    const { id,username, lastname, tel, matricule,cni,locationAddress, shippingAddress,role} = req.body
     try {
         const user = await userRepo.findOneOrFail({where:{id}})
         user.username = username
         user.lastname = lastname
         user.tel = tel
-        user.address = address
+        user.locationAddress = locationAddress
+        user.shippingAddress = shippingAddress
+        user.cni = cni
         user.matricule = matricule
         user.role = role
         userRepo.save(user)
-        res.status(200).json({message : 'user updated'})
+        res.status(200).json({msg : 'user updated'})
 
     } catch (error) {
-        res.status(404).send("invalid id, user not found")
+        res.status(404).send({msg :"invalid id, user not found"})
     }
 }
 export const editUser =  async (req:Request,res : Response) => {
@@ -88,6 +104,6 @@ export const editUser =  async (req:Request,res : Response) => {
         const user = await userRepo.findOneOrFail({where:{id}})
         res.status(200).send(user);
     } catch (error) {
-        res.status(400).send("invalid id, user not found")
+        res.status(400).send({msg: "invalid id, user not found"})
     }
 }

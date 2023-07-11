@@ -1,77 +1,137 @@
 import {Request, Response} from 'express'
 import { AppDataSource } from '../app'
-import { AccessoryStock, BookStock, ExerciseBookStock,Accessory,ExerciseBook,Book, ExerciseBookSupplier, BookSupplier, AccessorySupplier } from '../models'
+import {Accessory,ExerciseBook,Book, Supplier } from '../models'
+import { Stock } from '../models/Stock'
 
-const exerciseBookStockRepo = AppDataSource.getRepository(ExerciseBookStock)
+const stockRepo = AppDataSource.getRepository(Stock)
 const exerciseBookRepo = AppDataSource.getRepository(ExerciseBook)
-const exerciseBookSupplierRepo = AppDataSource.getRepository(ExerciseBookSupplier)
-
-
-const bookStockRepo = AppDataSource.getRepository(BookStock)
 const bookRepo = AppDataSource.getRepository(Book)
-const bookSupplierRepo = AppDataSource.getRepository(BookSupplier)
 
-const accessoryStockRepo = AppDataSource.getRepository(AccessoryStock)
 const accessoryRepo = AppDataSource.getRepository(Accessory)
-const accessorySupplierRepo = AppDataSource.getRepository(AccessorySupplier)
+const supplierRepo = AppDataSource.getRepository(Supplier)
 
 
 export const saveStockExerciseBook = async (req:Request, res : Response) => {
     const {id} = req.params;
-    const exerciseBook = await exerciseBookRepo.findOneOrFail({where:{id}})
-    const {designation, quantity, price,supplier} = req.body
-    const exerciseBookSupplier = await exerciseBookSupplierRepo.findOneOrFail({where:supplier})
+    const exerciseBook = await exerciseBookRepo.findOne({where:{id : id}})
+    const {quantity,supplier, description} = req.body
+    const foundSuppier = await supplierRepo.findOne({where:{name : supplier}})
 
-    const qty = quantity + exerciseBook.quantity;
+    const qty = parseInt(quantity);
 
     try {
-        const exerciseBookStock : Partial <ExerciseBookStock> = 
-                new ExerciseBookStock(designation,qty,price );
-        exerciseBookStock.exerciseBook = exerciseBook;
-        exerciseBookStock.supplier = exerciseBookSupplier;
-        await exerciseBookStockRepo.save(exerciseBookStock)
-        res.status(201).json({"msg":'exercise Book stock saved successfully'})
+        const stock  : Partial <Stock> = new Stock(exerciseBook.toString(),qty,description,'EXERCISE_BOOK');
+        stock.exerciseBook = exerciseBook;
+        stock.supplier = foundSuppier;
+        exerciseBook.quantity += qty ;
+        await stockRepo.save(stock)
+        await exerciseBookRepo.save(exerciseBook)
+        res.status(201).json({msg:'exercise Book stock saved successfully'})
     }catch(e){
-        throw e;
+        console.log(e) ;
+        res.status(500).send({msg : "stock cannot be saved"})
     }
 }
 
 export const saveStockBook = async (req:Request, res : Response) => {
-    const {id} = req.params; 
-    let supplierId : any;
+    const {id} = req.params;
+    const book = await bookRepo.findOne({where:{id : id}})
+    const {quantity,supplier,description} = req.body
+    const foundSuppier = await supplierRepo.findOne({where:{name : supplier}})
 
-    const {designation, quantity, price,supplier} = req.body
-    const bookSupplier = await bookSupplierRepo.findOneOrFail({where:{name:supplier}})
-    /************* je me suis arreté à l'enregistrement du stock des livres c'est OK */
+    const qty = parseInt(quantity);
+
     try {
-        
-        const bookStock : Partial <BookStock> = new BookStock(designation,parseInt(quantity),price);
-        bookStock.book = id;
-        supplierId = bookSupplier.id
-        bookStock.supplier = supplierId;
-
-        await bookStockRepo.save(bookStock)
-        res.status(201).json({"msg":'exercise Book saved successfully'})
+        const stock  : Partial <Stock> = new Stock(book.toString(),qty,description,"BOOK");
+        stock.book = book;
+        stock.supplier = foundSuppier;
+        book.quantity += qty;
+        await stockRepo.save(stock)
+        await bookRepo.save(book)
+        res.status(201).json({msg:'Book stock saved successfully'})
     }catch(e){
-        throw e;
+        console.log(e) ;
+        res.status(500).send({msg : "stock cannot be saved"})
     }
         
 }
 export const saveStockAccessory = async (req:Request, res : Response) => {
     const {id} = req.params;
-    const accessory = await accessoryRepo.findOneOrFail({where:{id}})
+    const accessory = await accessoryRepo.findOne({where:{id : id}})
+    const {quantity,supplier,description} = req.body
+    const foundSuppier = await supplierRepo.findOne({where:{name : supplier}})
 
-    const {designation, quantity, price,supplier} = req.body
-    const accessorySupplier = await accessorySupplierRepo.findOneOrFail({where:supplier})
+    const qty = parseInt(quantity);
+
     try {
-        const qty = quantity + accessory.quantity;
-        const accessoryStock : Partial <AccessoryStock> = new AccessoryStock(designation,qty,price);
-        accessoryStock.accessory = accessory;
-        accessoryStock.supplier = accessorySupplier;
-        await accessoryStockRepo.save(accessoryStock)
-        res.status(201).json({"msg":'accessory saved successfully'})
+        const stock  : Partial <Stock> = new Stock(accessory.toString(),qty,description,"ACCESSORY");
+        stock.accessory = accessory;
+        stock.supplier = foundSuppier;
+        accessory.quantity += qty
+        await stockRepo.save(stock)
+        res.status(201).json({msg:'accessory stock saved successfully'})
     }catch(e){
-        throw e;
-    }
-        
+        console.log(e) ;
+        res.status(500).send({msg : "stock cannot be saved"})
+    }     
 }
+
+export const listStockAccessory = async (req:Request, res : Response) => {
+    const {id} = req.params;
+    try {
+        const stocks = await stockRepo.find({where : {accessoryId : id}})
+        res.status(201).json(stocks) 
+    } catch (e) {
+        console.log(e) ;
+        res.status(500).send({msg : "list cannot be fetched"})
+    }
+} 
+export const globalListStockAccessory = async (req:Request, res : Response) => {
+    try {
+        const stocks = await stockRepo.find({where : {category : "ACCESSORY"}})
+        res.status(201).json(stocks) 
+    } catch (e) {
+        console.log(e) ;
+        res.status(500).send({msg : "list cannot be fetched"})
+    }
+} 
+export const listStockBook = async (req:Request, res : Response) => {
+    const {id} = req.params;
+    try {
+        const stocks = await stockRepo.find({where : {bookId : id}})
+        res.status(201).json(stocks) 
+    } catch (e) {
+        console.log(e) ;
+        res.status(500).send({msg : "list cannot be fetched"})
+    }
+} 
+export const globalListStockBook = async (req:Request, res : Response) => {
+    const {id} = req.params;
+    try {
+        const stocks = await stockRepo.find({where : {category : "BOOK"}})
+        res.status(201).json(stocks) 
+    } catch (e) {
+        console.log(e) ;
+        res.status(500).send({msg : "list cannot be fetched"})
+    }
+} 
+export const listStockExerciseBook = async (req:Request, res : Response) => {
+    const {id} = req.params;
+    try {
+        const stocks = await stockRepo.find({where : {exerciseBookId : id}})
+        res.status(201).json(stocks) 
+    } catch (e) {
+        console.log(e) ;
+        res.status(500).send({msg : "list cannot be fetched"})
+    }
+} 
+export const globalListStockExerciseBook = async (req:Request, res : Response) => {
+    const {id} = req.params;
+    try {
+        const stocks = await stockRepo.find({where : {category : "EXERCISE_BOOK"}})
+        res.status(201).json(stocks) 
+    } catch (e) {
+        console.log(e) ;
+        res.status(500).send({msg : "list cannot be fetched"})
+    }
+} 

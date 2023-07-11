@@ -2,7 +2,6 @@ import {Entity,PrimaryGeneratedColumn,Column,OneToMany} from 'typeorm';
 import { BillItem } from './BillItem';
 import { Item } from './Item';
 import { Stock } from './Stock';
-import { BookStock } from './BookStock';
 
 @Entity()
 export class Book extends Item{
@@ -42,7 +41,10 @@ export class Book extends Item{
     @OneToMany('BillItem',(billItem:BillItem)=>{billItem.book},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
     billItems : Array<BillItem>
 
-    @OneToMany('BookStock',(stock:BookStock)=>{stock.book},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
-    stocks : Array<BookStock>
+    @OneToMany('Stock',(stock:Stock)=>{stock.book},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
+    stocks : Array<Stock>
+
+    toString = (()=>{return this.designation+" "+this.level+" "+this.publisher})
+
     
 }

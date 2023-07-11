@@ -1,11 +1,14 @@
-import {PrimaryGeneratedColumn,Column} from 'typeorm';
 import { SharedProp } from './SharedProp.helper';
+import {Entity,PrimaryGeneratedColumn,Column,OneToMany} from 'typeorm';
+import { Stock } from './Stock';
 
+@Entity()
 export class Supplier extends SharedProp{
     constructor(
         name : string,
         tel : string,
         address : string,
+        category : string ,
         description : string
         )
         {
@@ -14,6 +17,7 @@ export class Supplier extends SharedProp{
         this.tel = tel 
         this.description = description
         this.address = address 
+        this.category = category
 
     }
     @PrimaryGeneratedColumn()
@@ -28,8 +32,13 @@ export class Supplier extends SharedProp{
     @Column()
     address : string;
 
-    @Column({ default : "00000"})
+    @Column()
+    category : string;
+
+    @Column()
     description : string;
 
+    @OneToMany('Stock',(stock:Stock)=>{stock.supplier},{onDelete : 'CASCADE', onUpdate : 'CASCADE'})
+    stocks : Array<Stock>
 
 }
